@@ -19,7 +19,7 @@ export default function Faq() {
     },
     {
       q: 'Is our proprietary business data safe when training an AI Website Assistant?',
-      a: 'Absolutedly. We build privacy-first AI pipelines using dedicated, encrypted vector storage and enterprise API endpoints where your data is never used for public model training.'
+      a: 'Absolutely. We build privacy-first AI pipelines using dedicated, encrypted vector storage and enterprise API endpoints where your data is never used for public model training.'
     },
     {
       q: 'Do you provide ongoing support and maintenance post-launch?',
