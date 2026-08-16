@@ -114,6 +114,7 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
                   onClick={() => setMessages(initialMessages)} 
                   className="reset-chat-btn"
                   title="Reset conversation"
+                  aria-label="Reset AI conversation"
                 >
                   <RefreshCw size={14} />
                 </button>
@@ -172,11 +173,11 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
               >
                 <input
                   type="text"
-                  placeholder="Ask a question about our services..."
+                  placeholder="Ask a question..."
                   value={inputVal}
                   onChange={(e) => setInputVal(e.target.value)}
                 />
-                <button type="submit" className="send-btn" disabled={!inputVal.trim()}>
+                <button type="submit" className="send-btn" disabled={!inputVal.trim()} aria-label="Send message">
                   <Send size={14} />
                 </button>
               </form>
@@ -189,12 +190,16 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
         .ai-demo-section {
           background-color: var(--bg-primary);
           border-top: 1px solid var(--border-light);
+          overflow-x: hidden;
         }
 
         .ai-demo-grid {
           display: grid;
           grid-template-columns: 1fr;
           gap: 36px;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
         }
 
         @media (min-width: 992px) {
@@ -203,6 +208,13 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
             align-items: center;
             gap: 64px;
           }
+        }
+
+        .ai-demo-left, .ai-demo-right {
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          min-width: 0;
         }
 
         .ai-features-list {
@@ -246,7 +258,12 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
 
         @media (max-width: 576px) {
           .w-full-mobile {
-            width: 100%;
+            width: 100% !important;
+            white-space: normal !important;
+            text-align: center !important;
+            padding: 12px 16px !important;
+            font-size: 0.8125rem !important;
+            box-sizing: border-box !important;
           }
         }
 
@@ -259,13 +276,16 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           box-shadow: 0 20px 60px var(--accent-shadow);
           display: flex;
           flex-direction: column;
-          height: 440px;
+          height: 420px;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
         }
 
         @media (min-width: 768px) {
           .chat-window-card {
             border-radius: var(--radius-lg);
-            height: 520px;
+            height: 500px;
           }
         }
 
@@ -273,9 +293,10 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 12px 16px;
+          padding: 12px 14px;
           background: var(--bg-secondary);
           border-bottom: 1px solid var(--border-light);
+          flex-shrink: 0;
         }
 
         @media (min-width: 768px) {
@@ -288,6 +309,7 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           display: flex;
           align-items: center;
           gap: 10px;
+          min-width: 0;
         }
 
         .bot-avatar-box {
@@ -299,13 +321,23 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
         }
 
         .bot-name {
           font-family: var(--font-display);
-          font-size: 0.875rem;
+          font-size: 0.8125rem;
           font-weight: 700;
           color: var(--text-primary);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        @media (min-width: 576px) {
+          .bot-name {
+            font-size: 0.875rem;
+          }
         }
 
         .bot-status {
@@ -313,6 +345,7 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           color: #10b981;
           font-family: var(--font-display);
           font-weight: 600;
+          display: block;
         }
 
         .reset-chat-btn {
@@ -320,11 +353,16 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           border-radius: 50%;
           color: var(--text-muted);
           transition: color var(--transition-fast);
+          flex-shrink: 0;
+        }
+
+        .reset-chat-btn:hover {
+          color: var(--text-primary);
         }
 
         .chat-stream-body {
           flex: 1;
-          padding: 14px;
+          padding: 12px;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
@@ -342,7 +380,7 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
         .stream-msg {
           display: flex;
           gap: 8px;
-          max-width: 94%;
+          max-width: 96%;
         }
 
         .stream-msg.bot-msg {
@@ -374,10 +412,17 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
         }
 
         .msg-bubble {
-          padding: 10px 14px;
+          padding: 8px 12px;
           border-radius: 14px;
           font-size: 0.8125rem;
           line-height: 1.45;
+          word-break: break-word;
+        }
+
+        @media (min-width: 768px) {
+          .msg-bubble {
+            padding: 10px 14px;
+          }
         }
 
         .bot-msg .msg-bubble {
@@ -397,7 +442,7 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           display: flex;
           align-items: center;
           gap: 4px;
-          padding: 10px 14px;
+          padding: 8px 12px;
         }
 
         .typing-dot {
@@ -419,14 +464,17 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
 
         /* Preset Prompts */
         .preset-prompts-bar {
-          padding: 8px 12px;
+          padding: 8px 10px;
           background: var(--bg-secondary);
           border-top: 1px solid var(--border-light);
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
+          width: 100%;
+          box-sizing: border-box;
+          flex-shrink: 0;
         }
 
         .preset-label {
@@ -443,6 +491,9 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           gap: 6px;
           overflow-x: auto;
           scrollbar-width: none;
+          min-width: 0;
+          flex: 1;
+          -webkit-overflow-scrolling: touch;
         }
 
         .pills-scroll::-webkit-scrollbar {
@@ -472,23 +523,35 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
         .chat-input-bar {
           display: flex;
           align-items: center;
-          padding: 10px 12px;
+          padding: 8px 10px;
           background: #ffffff;
           border-top: 1px solid var(--border-light);
-          gap: 8px;
+          gap: 6px;
+          width: 100%;
+          box-sizing: border-box;
+          flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+          .chat-input-bar {
+            padding: 10px 12px;
+            gap: 8px;
+          }
         }
 
         .chat-input-bar input {
           flex: 1;
+          min-width: 0;
           border: none;
           outline: none;
           font-size: 0.8125rem;
           color: var(--text-primary);
+          background: transparent;
         }
 
         .send-btn {
-          width: 30px;
-          height: 30px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
           background: var(--bg-dark);
           color: #ffffff;

@@ -153,7 +153,7 @@ export default function ContactForm({ prefillData, isModal, onClose }: ContactFo
 
               <div className="direct-contact-box">
                 <span className="direct-label">Direct Email Inquiry:</span>
-                <a href="mailto:hello@cognora.studio" className="direct-email">hello@cognora.studio</a>
+                <a href="mailto:hello@cognorastudio.com" className="direct-email">hello@cognorastudio.com</a>
                 <span className="location-tag">Hyderabad, India</span>
               </div>
             </div>
@@ -947,6 +947,10 @@ export default function ContactForm({ prefillData, isModal, onClose }: ContactFo
           border: none;
           box-shadow: none;
           border-radius: 0;
+        }
+
+        .contact-section.is-modal .contact-form-col {
+          padding-bottom: 36px;
         }
       `}</style>
     </section>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
@@ -15,6 +15,24 @@ import { X } from 'lucide-react';
 export default function App() {
   const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
   const [prefillData, setPrefillData] = useState(null);
+
+  // Lock background page scrolling on modal open, restore on close
+  useEffect(() => {
+    if (inquiryModalOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    };
+  }, [inquiryModalOpen]);
 
   const handleOpenInquiry = (data = null) => {
     if (data) {
@@ -66,12 +84,22 @@ export default function App() {
       {/* Project Inquiry Modal Overlay */}
       {inquiryModalOpen && (
         <div className="modal-overlay" onClick={handleCloseInquiry}>
-          <div className="modal-content inquiry-modal-dialog" onClick={(e) => e.stopPropagation()}>
+          <div 
+            className="modal-content inquiry-modal-dialog" 
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="inquiry-modal-title"
+          >
             <div className="inquiry-modal-header">
-              <div className="brand-logo">
+              <div className="brand-logo" id="inquiry-modal-title">
                 <span className="brand-text">COGNORA</span>
               </div>
-              <button className="close-modal-btn" onClick={handleCloseInquiry}>
+              <button 
+                className="close-modal-btn" 
+                onClick={handleCloseInquiry}
+                aria-label="Close consultation modal"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -81,21 +109,36 @@ export default function App() {
       )}
 
       <style>{`
+        /* Block Modal Container */
         .inquiry-modal-dialog {
-          max-width: 960px;
-          width: 94%;
-          margin: auto;
+          width: min(92vw, 960px);
+          margin: 24px auto;
           padding: 0;
-          overflow: hidden;
+          background: var(--bg-primary);
+          border-radius: var(--radius-lg);
+          border: 1px solid var(--border-strong);
+          box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+          display: block;
         }
 
+        /* Sticky Pinned Header */
         .inquiry-modal-header {
+          position: sticky;
+          top: 0;
+          z-index: 20;
+          background: var(--bg-secondary);
+          border-bottom: 1px solid var(--border-light);
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 20px 32px;
-          background: var(--bg-secondary);
-          border-bottom: 1px solid var(--border-light);
+          padding: 16px 20px;
+          flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+          .inquiry-modal-header {
+            padding: 20px 32px;
+          }
         }
       `}</style>
     </div>

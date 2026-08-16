@@ -58,7 +58,7 @@ export default function Footer() {
               <a href="#" className="social-icon-btn" aria-label="Twitter"><Twitter size={16} /></a>
               <a href="#" className="social-icon-btn" aria-label="LinkedIn"><Linkedin size={16} /></a>
               <a href="#" className="social-icon-btn" aria-label="GitHub"><Github size={16} /></a>
-              <a href="mailto:hello@cognora.studio" className="social-icon-btn" aria-label="Email"><Mail size={16} /></a>
+              <a href="mailto:hello@cognorastudio.com" className="social-icon-btn" aria-label="Email"><Mail size={16} /></a>
             </div>
           </div>
         </div>

@@ -64,7 +64,7 @@ export function useProjectInquiry() {
   }, []);
 
   /**
-   * Submit Inquiry Payload to Supabase PostgreSQL Database (with smooth fallback handling)
+   * Submit Inquiry Payload strictly to Supabase PostgreSQL Database
    */
   const submitInquiry = async (formData: EnquiryFormData): Promise<boolean> => {
     // Prevent duplicate submissions while request is pending
@@ -106,26 +106,30 @@ export function useProjectInquiry() {
         supabaseUrl.includes('your-project') || 
         supabaseUrl.includes('cognora-lead-capture');
 
-      if (!isPlaceholderConfig) {
-        try {
-          // Attempt real Supabase Database insert
-          const { error: insertError } = await supabase
-            .from('enquiries')
-            .insert([payload]);
-
-          if (insertError) {
-            console.error('[COGNORA Supabase Error]:', insertError);
-            throw new Error(insertError.message || 'Failed to record project enquiry.');
-          }
-        } catch (dbErr: any) {
-          console.warn('[COGNORA Supabase Network Fallback]: Could not reach remote DB. Enquiry captured locally.', dbErr);
-        }
+      if (isPlaceholderConfig) {
+        console.info('🚀 [COGNORA Sandbox Lead Mode]:', payload);
       } else {
-        console.info('🚀 [COGNORA Lead Inquiry Captured]:', payload);
-      }
+        // Direct Supabase Database insert
+        const { error: insertError } = await supabase
+          .from('enquiries')
+          .insert([payload]);
 
-      // Simulate smooth submission delay for natural UX feel
-      await new Promise(resolve => setTimeout(resolve, 600));
+        if (insertError) {
+          console.error('❌ [COGNORA Supabase Insert Error]:', insertError);
+          
+          if (insertError.code === '42501' || insertError.message?.includes('row-level security')) {
+            throw new Error(
+              'Supabase Row Level Security (RLS) policy is missing. Please run the SQL migration script in your Supabase SQL Editor.'
+            );
+          } else if (insertError.code === '42P01' || insertError.message?.includes('relation "public.enquiries" does not exist')) {
+            throw new Error(
+              'The "enquiries" table does not exist in Supabase yet. Please run the SQL migration script in your Supabase SQL Editor.'
+            );
+          } else {
+            throw new Error(insertError.message || 'Failed to record project enquiry in Supabase.');
+          }
+        }
+      }
 
       // 5. Update state on successful insert
       setReferenceId(refId);

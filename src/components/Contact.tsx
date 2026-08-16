@@ -65,8 +65,8 @@ export default function Contact() {
                 <Mail className="w-5 h-5 text-zinc-400 shrink-0" />
                 <div>
                   <span className="text-zinc-500 block text-[10px]">DIRECT INQUIRIES</span>
-                  <a href="mailto:hello@kronos.studio" className="text-white hover:underline font-bold text-sm">
-                    hello@kronos.studio
+                  <a href="mailto:hello@cognorastudio.com" className="text-white hover:underline font-bold text-sm">
+                    hello@cognorastudio.com
                   </a>
                 </div>
               </div>
