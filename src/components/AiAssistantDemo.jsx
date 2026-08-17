@@ -1,60 +1,91 @@
-import React, { useState } from 'react';
-import { Bot, Send, Sparkles, User, RefreshCw, MessageSquare, ArrowRight } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Bot, Send, Sparkles, User, RefreshCw, ArrowRight } from 'lucide-react';
 
 export default function AiAssistantDemo({ onOpenInquiry }) {
   const initialMessages = [
     {
       sender: 'bot',
-      text: 'Greetings. I am Cognora’s AI Concierge. I can answer questions about our design methodology, AI integration capabilities, or help you schedule a founder call. What would you like to explore?'
+      text: 'Greetings. I am Cognora’s AI Concierge. I can answer questions about our digital engineering services, pricing tiers, project timelines, or help you start a project inquiry. What would you like to explore?'
     }
   ];
 
   const [messages, setMessages] = useState(initialMessages);
   const [inputVal, setInputVal] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const chatStreamRef = useRef(null);
 
   const presetPrompts = [
     "What is your typical project timeline?",
-    "How does the AI Website Assistant work?",
-    "Do you offer custom Figma design tokens?",
-    "How do I start a project with Cognora?"
+    "How much does a website build cost?",
+    "What services does COGNORA offer?",
+    "How do I start a project inquiry?"
   ];
 
-  const knowledgeBase = {
-    timeline: "Our standard website redesigns take 3 to 6 weeks. For enterprise AI platforms, delivery ranges between 6 to 10 weeks depending on custom vector ingestion and API scope.",
-    assistant: "We fine-tune custom AI agents trained on your proprietary brand documentation, service offerings, and FAQs. The agent runs 24/7 on your website to answer visitor inquiries and auto-qualify leads.",
-    figma: "Yes! Every design project includes complete Figma design system tokens, typography scales, component libraries, and developer handoff specs.",
-    start: "Starting a project is simple. Click the 'Start a Project' button below or use our interactive cost estimator. We schedule a 30-minute founder call within 24 hours to align on your scope."
-  };
+  // Auto-scroll chat body to bottom when messages update or typing state changes
+  useEffect(() => {
+    if (chatStreamRef.current) {
+      chatStreamRef.current.scrollTop = chatStreamRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
 
-  const handleSendMessage = (textToSend) => {
+  const handleSendMessage = async (textToSend) => {
     const text = textToSend || inputVal;
-    if (!text.trim()) return;
+    if (!text.trim() || isTyping) return;
 
-    // Add user message
+    // Add user message to UI
     const userMsg = { sender: 'user', text };
-    setMessages(prev => [...prev, userMsg]);
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
     if (!textToSend) setInputVal('');
     setIsTyping(true);
 
-    // Simulate AI response logic
-    setTimeout(() => {
-      let botResponse = "That's a great question! At Cognora, we custom-engineer every digital experience and AI assistant from scratch to deliver sub-second performance and measurable growth for your brand.";
-      const lower = text.toLowerCase();
+    try {
+      // Prepare conversation history for backend LLM function
+      const historyPayload = newMessages.map(m => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.text
+      }));
 
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: text,
+          conversationHistory: historyPayload.slice(0, -1) // prior messages
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server status ${res.status}`);
+      }
+
+      const data = await res.json();
+      const botResponse = data?.reply || "I'm having trouble connecting right now. You can still submit your project enquiry.";
+      
+      setMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
+    } catch (err) {
+      console.warn("API route unavailable or offline, using fallback response:", err);
+      
+      // Fallback response handling as requested
+      let botResponse = "I'm having trouble connecting right now. You can still submit your project enquiry.";
+      
+      const lower = text.toLowerCase();
       if (lower.includes('timeline') || lower.includes('time') || lower.includes('weeks')) {
-        botResponse = knowledgeBase.timeline;
-      } else if (lower.includes('assistant') || lower.includes('agent') || lower.includes('ai')) {
-        botResponse = knowledgeBase.assistant;
-      } else if (lower.includes('figma') || lower.includes('design') || lower.includes('token')) {
-        botResponse = knowledgeBase.figma;
-      } else if (lower.includes('start') || lower.includes('inquire') || lower.includes('book') || lower.includes('cost')) {
-        botResponse = knowledgeBase.start;
+        botResponse = "COGNORA project timelines range from 1–2 weeks for landing pages, 2–4 weeks for business websites, and 6–10 weeks for custom AI automation engines. What timeline are you aiming for?";
+      } else if (lower.includes('cost') || lower.includes('price') || lower.includes('pricing') || lower.includes('budget') || lower.includes('rupees') || lower.includes('₹') || lower.includes('35')) {
+        botResponse = "Projects at COGNORA generally start around ₹35,000, with bespoke web applications and AI platforms ranging up to ₹1.25L+. What scope or budget do you have in mind?";
+      } else if (lower.includes('service') || lower.includes('build') || lower.includes('ai') || lower.includes('website')) {
+        botResponse = "We engineer premium business websites, UI/UX design systems, AI chatbots, branding, and custom web applications. Would you like to explore a specific capability?";
+      } else if (lower.includes('start') || lower.includes('contact') || lower.includes('hire') || lower.includes('inquire')) {
+        botResponse = "You can initiate your project immediately by submitting the consultation inquiry form below. We schedule a founder review within 24 hours. Should I guide you to the form?";
       }
 
       setMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
+    } finally {
       setIsTyping(false);
-    }, 800);
+    }
   };
 
   return (
@@ -71,7 +102,7 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
               <span style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>Experience</span> an <span className="editorial">AI Website Assistant</span> in real-time.
             </h2>
             <p className="section-subtitle">
-              This interactive widget demonstrates the exact AI concierge experience we build for client websites. Test it now to see how an intelligent assistant answers technical questions and converts visitors 24/7.
+              This interactive consultant is powered by an LLM trained on COGNORA's engineering methodology, pricing, and project workflows. Test it now to see how an intelligent assistant converts visitors 24/7.
             </p>
 
             <div className="ai-features-list">
@@ -115,13 +146,14 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
                   className="reset-chat-btn"
                   title="Reset conversation"
                   aria-label="Reset AI conversation"
+                  disabled={isTyping}
                 >
                   <RefreshCw size={14} />
                 </button>
               </div>
 
-              {/* Chat Stream */}
-              <div className="chat-stream-body">
+              {/* Chat Stream Body */}
+              <div className="chat-stream-body" ref={chatStreamRef}>
                 {messages.map((msg, index) => (
                   <div key={index} className={`stream-msg ${msg.sender}-msg`}>
                     <div className="avatar-icon">
@@ -155,6 +187,7 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
                     <button
                       key={i}
                       className="prompt-pill-btn"
+                      disabled={isTyping}
                       onClick={() => handleSendMessage(promptText)}
                     >
                       {promptText}
@@ -173,11 +206,12 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
               >
                 <input
                   type="text"
-                  placeholder="Ask a question..."
+                  placeholder={isTyping ? "Cognora AI is typing..." : "Ask a question..."}
                   value={inputVal}
+                  disabled={isTyping}
                   onChange={(e) => setInputVal(e.target.value)}
                 />
-                <button type="submit" className="send-btn" disabled={!inputVal.trim()} aria-label="Send message">
+                <button type="submit" className="send-btn" disabled={!inputVal.trim() || isTyping} aria-label="Send message">
                   <Send size={14} />
                 </button>
               </form>
@@ -360,6 +394,11 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           color: var(--text-primary);
         }
 
+        .reset-chat-btn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+
         .chat-stream-body {
           flex: 1;
           padding: 12px;
@@ -368,6 +407,7 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           flex-direction: column;
           gap: 12px;
           -webkit-overflow-scrolling: touch;
+          scroll-behavior: smooth;
         }
 
         @media (min-width: 768px) {
@@ -514,9 +554,14 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           flex-shrink: 0;
         }
 
-        .prompt-pill-btn:hover {
+        .prompt-pill-btn:hover:not(:disabled) {
           border-color: var(--border-strong);
           color: var(--text-primary);
+        }
+
+        .prompt-pill-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         /* Input Bar */
@@ -547,6 +592,11 @@ export default function AiAssistantDemo({ onOpenInquiry }) {
           font-size: 0.8125rem;
           color: var(--text-primary);
           background: transparent;
+        }
+
+        .chat-input-bar input:disabled {
+          color: var(--text-muted);
+          cursor: not-allowed;
         }
 
         .send-btn {
